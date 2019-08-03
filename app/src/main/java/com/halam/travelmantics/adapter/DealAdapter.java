@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,10 +16,11 @@ import com.halam.travelmantics.DealActivity;
 import com.halam.travelmantics.R;
 import com.halam.travelmantics.data.TravelDeal;
 import com.halam.travelmantics.utils.FirebaseUtill;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class DealAdapter extends RecyclerView.Adapter<DealAdapter.DealViewHolder>{
+public class DealAdapter extends RecyclerView.Adapter<DealAdapter.DealViewHolder> {
 
     ArrayList<TravelDeal> deals;
     private FirebaseDatabase mFirebaseDatabase;
@@ -42,7 +44,7 @@ public class DealAdapter extends RecyclerView.Adapter<DealAdapter.DealViewHolder
                 td.setId(dataSnapshot.getKey());
                 deals.add(td);
 
-                notifyItemInserted(deals.size()-1);
+                notifyItemInserted(deals.size() - 1);
             }
 
             @Override
@@ -88,8 +90,9 @@ public class DealAdapter extends RecyclerView.Adapter<DealAdapter.DealViewHolder
     }
 
     public class DealViewHolder extends RecyclerView.ViewHolder
-    implements View.OnClickListener{
+            implements View.OnClickListener {
         TextView tvTitle;
+        ImageView imageDeal;
         TextView tvDescription;
         TextView tvPrice;
 
@@ -97,6 +100,7 @@ public class DealAdapter extends RecyclerView.Adapter<DealAdapter.DealViewHolder
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvTitle);
             tvDescription = itemView.findViewById(R.id.tvDescription);
+            imageDeal = itemView.findViewById(R.id.imageDeal);
             tvPrice = itemView.findViewById(R.id.tvPrice);
             itemView.setOnClickListener(this);
         }
@@ -105,6 +109,13 @@ public class DealAdapter extends RecyclerView.Adapter<DealAdapter.DealViewHolder
             tvTitle.setText(deal.getTitle());
             tvDescription.setText(deal.getDescription());
             tvPrice.setText(deal.getPrice());
+            if (deal.getImageUrl() != null && deal.getImageUrl().length() > 4)
+                Picasso.get()
+                        .load(deal.getImageUrl())
+                        .resizeDimen(R.dimen.image_size,
+                                R.dimen.image_size)
+                        .centerCrop()
+                        .into(imageDeal);
         }
 
         @Override

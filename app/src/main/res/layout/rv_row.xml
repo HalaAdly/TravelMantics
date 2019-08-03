@@ -9,8 +9,8 @@
 
     <ImageView
         android:id="@+id/imageDeal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/image_size"
+        android:layout_height="@dimen/image_size"
         android:layout_marginStart="@dimen/text_margin_standard"
         android:layout_marginTop="@dimen/text_margin_standard"
         app:layout_constraintStart_toStartOf="parent"

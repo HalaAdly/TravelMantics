@@ -1,17 +1,25 @@
 package com.halam.travelmantics;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageReference;
 import com.halam.travelmantics.data.TravelDeal;
 import com.halam.travelmantics.utils.FirebaseUtill;
+import com.squareup.picasso.Picasso;
 
 public class DealActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
@@ -20,12 +28,14 @@ public class DealActivity extends AppCompatActivity {
     private EditText mTxtPrice;
     private EditText mTxtDescription;
     TravelDeal deal;
+    private int PICTURE_RESULT = 55;
+    ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deal);
-
+        FirebaseUtill.connectStorage();
         // Creates an instance of the database
         mFirebaseDatabase = FirebaseUtill.mFirebaseDatabase;
 
@@ -45,7 +55,17 @@ public class DealActivity extends AppCompatActivity {
         mTxtTitle.setText(deal.getTitle());
         mTxtDescription.setText(deal.getDescription());
         mTxtPrice.setText(deal.getPrice());
-
+        imageView = findViewById(R.id.uploaded_img);
+        showImage(deal.getImageUrl());
+        findViewById(R.id.btn_image).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                i.setType("image/jpeg");
+                i.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(i.createChooser(i, "Choose Image"), PICTURE_RESULT);
+            }
+        });
     }
 
     @Override
@@ -56,8 +76,7 @@ public class DealActivity extends AppCompatActivity {
             menu.findItem(R.id.delete_menu).setVisible(true);
             menu.findItem(R.id.save_menu).setVisible(true);
             enableEditTexts(true);
-        }
-        else {
+        } else {
             menu.findItem(R.id.delete_menu).setVisible(false);
             menu.findItem(R.id.save_menu).setVisible(false);
             enableEditTexts(false);
@@ -94,6 +113,39 @@ public class DealActivity extends AppCompatActivity {
             mDatabaseReference.push().setValue(deal);
         } else {
             mDatabaseReference.child(deal.getId()).setValue(deal);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICTURE_RESULT && resultCode == RESULT_OK) {
+            Uri imageUri = data.getData();
+            StorageReference ref = FirebaseUtill.mFirebaseStorageR.child(imageUri.getLastPathSegment());
+
+            ref.getDownloadUrl().addOnSuccessListener(this, new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    String url = uri.toString();
+                    deal.setImageUrl(url);
+//                    deal.setImageName(pictureName);
+//                    Log.d("Url: ", url);
+//                    Log.d("Name", pictureName);
+                    showImage(url);
+                }
+            });
+            ref.putFile(imageUri);
+        }
+    }
+
+    private void showImage(String url) {
+        if (url != null && !url.isEmpty()) {
+            int width = Resources.getSystem().getDisplayMetrics().widthPixels;
+            Picasso.get()
+                    .load(url)
+//                    .resize(width, width * 2 / 3)
+//                    .centerCrop()
+                    .into(imageView);
         }
     }
 

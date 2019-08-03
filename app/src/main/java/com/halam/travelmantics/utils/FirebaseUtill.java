@@ -1,6 +1,5 @@
 package com.halam.travelmantics.utils;
 
-import android.app.Activity;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -8,6 +7,8 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.halam.travelmantics.ListActivity;
 import com.halam.travelmantics.data.TravelDeal;
 
@@ -20,6 +21,8 @@ public class FirebaseUtill {
     public static DatabaseReference mDatabaseReference;
     private static FirebaseUtill firebaseUtill;
     private static FirebaseAuth mFirebaseAuth;
+    private static FirebaseStorage mFirebaseStorage;
+    public static StorageReference mFirebaseStorageR;
     private static FirebaseAuth.AuthStateListener mAuthStateListener;
     public static ArrayList<TravelDeal> mDeals;
     private static ListActivity caller;
@@ -27,7 +30,8 @@ public class FirebaseUtill {
 
     private static final int RC_SIGN_IN = 123;
 
-    private FirebaseUtill() { }
+    private FirebaseUtill() {
+    }
 
     public static void openFbReference(String ref, final ListActivity callerActivity) {
         if (firebaseUtill == null) {
@@ -41,8 +45,7 @@ public class FirebaseUtill {
                 public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                     if (firebaseAuth.getCurrentUser() == null) {
                         FirebaseUtill.signIn();
-                    }
-                    else {
+                    } else {
                         String userId = firebaseAuth.getUid();
                         checkAdmin(userId);
                     }
@@ -53,6 +56,7 @@ public class FirebaseUtill {
         }
         mDeals = new ArrayList<TravelDeal>();
         mDatabaseReference = mFirebaseDatabase.getReference().child(ref);
+
     }
 
     private static void checkAdmin(String uid) {
@@ -105,12 +109,16 @@ public class FirebaseUtill {
                 RC_SIGN_IN);
     }
 
-    public static void attachListener () {
+    public static void attachListener() {
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
-    public static void detachListener () {
+    public static void detachListener() {
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
     }
 
+    public static void connectStorage() {
+        mFirebaseStorage = FirebaseStorage.getInstance();
+        mFirebaseStorageR = mFirebaseStorage.getReference().child("deals_pictures");
+    }
 }
