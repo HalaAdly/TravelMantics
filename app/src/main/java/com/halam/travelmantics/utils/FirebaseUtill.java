@@ -21,7 +21,7 @@ public class FirebaseUtill {
     public static DatabaseReference mDatabaseReference;
     private static FirebaseUtill firebaseUtill;
     private static FirebaseAuth mFirebaseAuth;
-    private static FirebaseStorage mFirebaseStorage;
+    public static FirebaseStorage mFirebaseStorage;
     public static StorageReference mFirebaseStorageR;
     private static FirebaseAuth.AuthStateListener mAuthStateListener;
     public static ArrayList<TravelDeal> mDeals;

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,12 +12,15 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.halam.travelmantics.data.TravelDeal;
 import com.halam.travelmantics.utils.FirebaseUtill;
 import com.squareup.picasso.Picasso;
@@ -63,7 +67,7 @@ public class DealActivity extends AppCompatActivity {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("image/jpeg");
                 i.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(i.createChooser(i, "Choose Image"), PICTURE_RESULT);
+                startActivityForResult(Intent.createChooser(i, "Choose Image"), PICTURE_RESULT);
             }
         });
     }
@@ -134,7 +138,13 @@ public class DealActivity extends AppCompatActivity {
                     showImage(url);
                 }
             });
-            ref.putFile(imageUri);
+            ref.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    deal.setImageName(taskSnapshot.getStorage().getPath());
+
+                }
+            });
         }
     }
 
@@ -155,7 +165,24 @@ public class DealActivity extends AppCompatActivity {
             return;
         }
         mDatabaseReference.child(deal.getId()).removeValue();
+        if (deal.getImageName() != null && deal.getImageName().isEmpty() == false) {
 
+            StorageReference picRef = FirebaseUtill.mFirebaseStorage.getReference().child(deal.getImageName());
+            picRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    // File deleted successfully
+                    Toast.makeText(DealActivity.this, "Image Deleted Successfully", Toast.LENGTH_LONG).show();
+                    Log.d("Delete image", "Delete Successful");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Uh-oh, an error occurred!
+                    Log.d("Delete Image", exception.getMessage());
+                }
+            });
+        }
     }
 
     private void backToList() {
