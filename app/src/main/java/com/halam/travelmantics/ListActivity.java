@@ -106,7 +106,8 @@ public class ListActivity extends AppCompatActivity {
 
     public boolean isInternetAvailable() {
         boolean isConnected = NetworkUtils.isConnected(this);
-        Toast.makeText(this, R.string.nointernetconnection, Toast.LENGTH_LONG).show();
+        if (!isConnected)
+            Toast.makeText(this, R.string.nointernetconnection, Toast.LENGTH_LONG).show();
         return isConnected;
 
     }
