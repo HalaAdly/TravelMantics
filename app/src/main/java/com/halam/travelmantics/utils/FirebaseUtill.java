@@ -1,7 +1,6 @@
 package com.halam.travelmantics.utils;
 
 import android.util.Log;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.FirebaseApp;
@@ -49,12 +48,12 @@ public class FirebaseUtill {
                         String userId = firebaseAuth.getUid();
                         checkAdmin(userId);
                     }
-                    Toast.makeText(callerActivity.getBaseContext(), "Welcome back!", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(callerActivity.getBaseContext(), "Welcome back!", Toast.LENGTH_LONG).show();
                 }
             };
 
         }
-        mDeals = new ArrayList<TravelDeal>();
+        mDeals = new ArrayList<>();
         mDatabaseReference = mFirebaseDatabase.getReference().child(ref);
 
     }

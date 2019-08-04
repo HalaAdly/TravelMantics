@@ -12,4 +12,6 @@
     <string name="no_deal">Please save the deal before deleting</string>
     <string name="image_deleted_succeful">Image Deleted Successfully</string>
     <string name="complete_data">Please add title and price</string>
+    <string name="nointernetconnection">There was an error in connection, Please try again. </string>
+
 </resources>

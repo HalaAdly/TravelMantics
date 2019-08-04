@@ -23,6 +23,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.halam.travelmantics.data.TravelDeal;
 import com.halam.travelmantics.utils.FirebaseUtill;
+import com.halam.travelmantics.utils.NetworkUtils;
 import com.squareup.picasso.Picasso;
 
 public class DealActivity extends AppCompatActivity {
@@ -73,6 +74,12 @@ public class DealActivity extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(i, getString(R.string.choose_images)), PICTURE_RESULT);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isInternetAvailable();
     }
 
     @Override
@@ -221,5 +228,12 @@ public class DealActivity extends AppCompatActivity {
         mTxtTitle.setEnabled(isEnabled);
         mTxtDescription.setEnabled(isEnabled);
         mTxtPrice.setEnabled(isEnabled);
+    }
+
+    public boolean isInternetAvailable() {
+        boolean isConnected = NetworkUtils.isConnected(this);
+        Toast.makeText(this, R.string.nointernetconnection, Toast.LENGTH_LONG).show();
+        return isConnected;
+
     }
 }
