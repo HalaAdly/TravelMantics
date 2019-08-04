@@ -6,4 +6,10 @@
     <string name="txt_save_menu">Save</string>
     <string name="delete_deal">Delete Deal</string>
     <string name="upload_image">Upload Image</string>
+    <string name="choose_images">Choose Image</string>
+    <string name="saved">Deal saved</string>
+    <string name="deleted">Deal deleted!</string>
+    <string name="no_deal">Please save the deal before deleting</string>
+    <string name="image_deleted_succeful">Image Deleted Successfully</string>
+    <string name="complete_data">Please add title and price</string>
 </resources>

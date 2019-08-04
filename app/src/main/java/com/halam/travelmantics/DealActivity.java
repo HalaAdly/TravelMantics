@@ -52,22 +52,25 @@ public class DealActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         TravelDeal deal = (TravelDeal) intent.getSerializableExtra("Deal");
-        if (deal == null) {
-            deal = new TravelDeal();
-        }
+//        if (deal == null) {
+//            deal = new TravelDeal();
+//        }
         this.deal = deal;
-        mTxtTitle.setText(deal.getTitle());
-        mTxtDescription.setText(deal.getDescription());
-        mTxtPrice.setText(deal.getPrice());
         imageView = findViewById(R.id.uploaded_img);
-        showImage(deal.getImageUrl());
+
+        if (deal != null) {
+            mTxtTitle.setText(deal.getTitle());
+            mTxtDescription.setText(deal.getDescription());
+            mTxtPrice.setText(deal.getPrice());
+            showImage(deal.getImageUrl());
+        }
         findViewById(R.id.btn_image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("image/jpeg");
                 i.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(i, "Choose Image"), PICTURE_RESULT);
+                startActivityForResult(Intent.createChooser(i, getString(R.string.choose_images)), PICTURE_RESULT);
             }
         });
     }
@@ -93,15 +96,17 @@ public class DealActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_menu:
-                savedDeal();
-                Toast.makeText(this, "Deal saved", Toast.LENGTH_LONG).show();
-                clean();
-                backToList();
+                if (savedDeal()) {
+                    Toast.makeText(this, R.string.saved, Toast.LENGTH_LONG).show();
+                    clean();
+                    backToList();
+                }
                 return true;
             case R.id.delete_menu:
-                deleteDeal();
-                Toast.makeText(this, "Deal deleted!", Toast.LENGTH_LONG).show();
-                backToList();
+                if (deleteDeal()) {
+                    Toast.makeText(this, R.string.deleted, Toast.LENGTH_LONG).show();
+                    backToList();
+                }
                 return true;
 
             default:
@@ -109,7 +114,13 @@ public class DealActivity extends AppCompatActivity {
         }
     }
 
-    private void savedDeal() {
+    private boolean savedDeal() {
+        if (mTxtTitle.getText().length() == 0 || mTxtPrice.getText().length() == 0) {
+            Toast.makeText(this, R.string.complete_data, Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (deal == null)
+            deal = new TravelDeal();
         deal.setTitle(mTxtTitle.getText().toString());
         deal.setDescription(mTxtDescription.getText().toString());
         deal.setPrice(mTxtPrice.getText().toString());
@@ -118,12 +129,15 @@ public class DealActivity extends AppCompatActivity {
         } else {
             mDatabaseReference.child(deal.getId()).setValue(deal);
         }
+        return true;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICTURE_RESULT && resultCode == RESULT_OK) {
+            if (deal == null)
+                deal = new TravelDeal();
             Uri imageUri = data.getData();
             StorageReference ref = FirebaseUtill.mFirebaseStorageR.child(imageUri.getLastPathSegment());
 
@@ -159,10 +173,10 @@ public class DealActivity extends AppCompatActivity {
         }
     }
 
-    private void deleteDeal() {
+    private boolean deleteDeal() {
         if (deal == null) {
-            Toast.makeText(this, "Please save the deal before deleting", Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(this, R.string.no_deal, Toast.LENGTH_SHORT).show();
+            return false;
         }
         mDatabaseReference.child(deal.getId()).removeValue();
         if (deal.getImageName() != null && deal.getImageName().isEmpty() == false) {
@@ -172,7 +186,7 @@ public class DealActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void aVoid) {
                     // File deleted successfully
-                    Toast.makeText(DealActivity.this, "Image Deleted Successfully", Toast.LENGTH_LONG).show();
+                    Toast.makeText(DealActivity.this, R.string.image_deleted_succeful, Toast.LENGTH_LONG).show();
                     Log.d("Delete image", "Delete Successful");
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -183,10 +197,12 @@ public class DealActivity extends AppCompatActivity {
                 }
             });
         }
+        return true;
     }
 
     private void backToList() {
         Intent intent = new Intent(this, ListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
@@ -195,6 +211,10 @@ public class DealActivity extends AppCompatActivity {
         mTxtPrice.setText("");
         mTxtDescription.setText("");
         mTxtTitle.requestFocus();
+        if (deal != null) {
+            deal.setImageName(null);
+            deal.setImageUrl(null);
+        }
     }
 
     private void enableEditTexts(boolean isEnabled) {

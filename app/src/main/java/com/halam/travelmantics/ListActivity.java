@@ -66,6 +66,7 @@ public class ListActivity extends AppCompatActivity {
                             }
                         });
                 FirebaseUtill.detachListener();
+                finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
