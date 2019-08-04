@@ -115,7 +115,11 @@ public class DealAdapter extends RecyclerView.Adapter<DealAdapter.DealViewHolder
                         .resizeDimen(R.dimen.image_size,
                                 R.dimen.image_size)
                         .centerCrop()
+                        .placeholder(R.mipmap.ic_launcher)
                         .into(imageDeal);
+            else {
+                imageDeal.setImageResource(R.mipmap.ic_launcher);
+            }
         }
 
         @Override
